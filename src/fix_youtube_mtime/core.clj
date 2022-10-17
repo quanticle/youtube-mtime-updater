@@ -9,7 +9,7 @@
            (java.io File))
   (:gen-class))
 
-(defrecord update-success [was-successful file-name msg])
+(defrecord update-success [was-successful file msg])
 
 (def client-key-file-name ".client-key")
 
@@ -22,8 +22,8 @@
   "Gets the video ID from the filename.
    Videos downloaded by youtube-dl have a hyphen, followed by the 11-character video ID, followed by the extension.
    Videos downloaded by yt-dlp enclose the video ID in square brackets, followed by the extension."
-  (let [youtube-dl-match (re-find #"-([A-Za-z0-9-]{11})\.\w{3,4}" file-name)
-        yt-dlp-match (re-find #"\[([A-Za-z0-9-]{11})\]\.\w{3,4}" file-name)]
+  (let [youtube-dl-match (re-find #"-([A-Za-z0-9_-]{11})\.\w{3,4}" file-name)
+        yt-dlp-match (re-find #"\[([A-Za-z0-9_-]{11})\]\.\w{3,4}" file-name)]
     (cond
       youtube-dl-match (youtube-dl-match 1)
       yt-dlp-match (yt-dlp-match 1)
@@ -40,9 +40,10 @@
                                                        :part "snippet"}})
         body (if (= (:status http-response) 200)
                (json/read-str (:body http-response) :key-fn keyword)
-               nil)]
-    (if body
-      (time/read-instant-date (:publishedAt (:snippet ((:items body) 0))))
+               nil)
+        timestamp-text (:publishedAt (:snippet (get (:items body) 0)))]
+    (if timestamp-text
+      (time/read-instant-date timestamp-text)
       nil)))
 
 (defn date-to-millis [^Date date]
@@ -71,7 +72,8 @@
           file-or-directory)
 
 (defmethod update-mtime :directory [dir]
-  "Directories not handled yet")
+  (let [files-in-dir (filter #(not (.isDirectory %)) (file-seq dir))]
+    (eduction (map update-mtime) files-in-dir)))
 
 (defmethod update-mtime :file [f]
   (let [api-key (load-client-key client-key-file-name)
@@ -83,7 +85,9 @@
       (if (.setLastModified f (date-to-millis upload-date))
         (->update-success true (.getName f) "Update successful")
         (->update-success false (.getName f) "Was not able to update mtime on file"))
-      (->update-success false (.getName f) "Was not able to retrieve mtime"))))
+      (if video-id
+        (->update-success false (.getName f) "Was not able to retrieve mtime")
+        (->update-success false (.getName f) "Was not able to extract video ID from filename")))))
 
 (defn -main
   "I don't do a whole lot ... yet."
