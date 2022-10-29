@@ -138,7 +138,7 @@
                           true)
                         (isDirectory [] false))
             result (update-mtime mock-file)]
-        (is (= (:was-successful result) true))
+        (is (= (:was-successful (first result)) true))
         (is (= @last-mod-time 10))
         (is (= (:call-args @mock-load-client-key) [client-key-file-name]))
         (is (= (:call-args @mock-get-video-id-from-filename ["test file name"])))
@@ -161,8 +161,8 @@
                             false)
                           (isDirectory [] false))
               result (update-mtime mock-file)]
-          (is (= (:was-successful result) false))
-          (is (= (:msg result) "Was not able to update mtime on file")))))
+          (is (= (:was-successful (first result)) false))
+          (is (= (:msg (first result)) "Was not able to update mtime on file")))))
     (testing "Unsuccessful mtime retrieval"
       (with-mocks [mock-load-client-key {:target :fix-youtube-mtime.core/load-client-key
                                          :return "test key"}
@@ -180,5 +180,19 @@
                             false)
                           (isDirectory [] false))
               result (update-mtime mock-file)]
-          (is (= (:was-successful result) false))
-          (is (= (:msg result) "Was not able to retrieve mtime")))))))
+          (is (= (:was-successful (first result)) false))
+          (is (= (:msg (first result)) "Was not able to retrieve mtime")))))))
+
+(deftest test-print-errors
+  (testing "Print errors and only errors"
+    (with-mocks [mock-print {:target :clojure.core/println}]
+      (let [results [(->update-success true (File. "test-success") "successful update")
+                     (->update-success false (File. "test-fail-1") "update failure 1")
+                     (->update-success false (File. "test-fail-2") "update failure 2")]]
+        (report-errors results nil)
+        (is (= (:call-args @mock-print) ["test-fail-1: update failure 1\ntest-fail-2: update failure 2"])))))
+  (testing "No errors"
+    (with-mocks [mock-print {:target :clojure.core/println}]
+      (let [results [(->update-success true (File. "test success") "successful update")]]
+        (report-errors results nil)
+        (is (= (:call-args @mock-print [""])))))))
