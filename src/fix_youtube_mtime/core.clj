@@ -6,7 +6,9 @@
             [clojure.java.io :as io])
   (:import [java.util Calendar$Builder]
            [java.util Date Calendar$Builder]
-           (java.io File))
+           [java.io File]
+           [java.io PrintStream]
+           [java.nio.charset StandardCharsets])
   (:gen-class))
 
 (defrecord update-success [was-successful file msg])
@@ -93,7 +95,7 @@
 
 (defmethod report-errors true [^update-success result]
   (if (not (:was-successful result))
-    (println (str (.getPath (:file result)) ": " (:msg result)))))
+    (str (.getPath (:file result)) ": " (:msg result) "\n")))
 
 (defmethod report-errors false [results]
   (doall (map report-errors results)))
@@ -101,8 +103,5 @@
 (defn -main
   "Entry point"
   [& args]
-  (if (<= 1 (count args))
-      (report-errors (update-mtime (File. ^String (first args))) System/err)
-      (do
-        (println "Please provide a file or directory")
-        (System/exit 1))))
+  (with-open [input-rdr (io/reader *in*)]
+      (println (str/join (report-errors (flatten (map update-mtime (map #(File. %) (line-seq input-rdr)))))))))
