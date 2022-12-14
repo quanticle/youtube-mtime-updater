@@ -1,44 +1,33 @@
 # fix-youtube-mtime
 
-FIXME: description
+A little script that will set the modified time of YouTube videos that have been downloaded with youtube-dl or yt-dlp.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+- First install [Leiningen](https://leiningen.org/)
+- `git clone git@github.com:quanticle/youtube-mtime-updater`
+- Get an [API Key](https://developers.google.com/youtube/registering_an_application) for YouTube
+- Place the API key `resources/client-key`
+- Build the code with `lein uberjar`
 
 ## Usage
 
-FIXME: explanation
+The code reads a sequence of files or directories from standard input, delimited by newlines. If the input is a file, it will hit the YouTube API and update the mtime for that file. If the input is a directory, the code will recurse into the directory, updating the mtimes on all YouTube videos located in that directory (and subdirectories). The code assumes that the files have their YouTube video IDs in the file name, either in `youtube-dl` format (i.e. `<title>-<video_id>.<extension>`) or `yt-dlp` format (i.e. `<title> [<video_id>].<extension>`).
 
-    $ java -jar fix-youtube-mtime-0.1.0-standalone.jar [args]
+YouTube video titles often include Unicode characters outside of the normal ASCII range, so on Windows PowerShell, set the following options:
 
-## Options
+```
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$env:JAVA_TOOL_OPTIONS = "-Dfile.encoding=UTF-8"
+```
 
-FIXME: listing of options this app accepts.
+This works around a known issue with Java on Windows, where it assumes that input text is encoded using `Cp1252`, unless specifically told otherwise. The above step is not necessary on Linux or MacOS.
 
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
-Copyright © 2022 FIXME
+Copyright © 2022 Rohit Patnaik
 
 This program and the accompanying materials are made available under the
-terms of the Eclipse Public License 2.0 which is available at
-http://www.eclipse.org/legal/epl-2.0.
-
-This Source Code may also be made available under the following Secondary
-Licenses when the conditions for such availability set forth in the Eclipse
-Public License, v. 2.0 are satisfied: GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or (at your
-option) any later version, with the GNU Classpath Exception which is available
-at https://www.gnu.org/software/classpath/license.html.
+terms of the GNU General Public License 3.0 which is available at
+https://www.gnu.org/licenses/gpl-3.0.en.html.
