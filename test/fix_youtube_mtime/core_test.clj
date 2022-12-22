@@ -141,9 +141,9 @@
         (is (= (:was-successful result) true))
         (is (= @last-mod-time 10))
         (is (= (:call-args @mock-load-client-key) [client-key-file-name]))
-        (is (= (:call-args @mock-get-video-id-from-filename ["test file name"])))
-        (is (= (:call-args @mock-get-video-upload-date ["test video id"])))
-        (is (= (:call-args @mock-date-to-millis ["test upload date"])))))
+        (is (= (:call-args @mock-get-video-id-from-filename) ["test file name"]))
+        (is (= (:call-args @mock-date-to-millis) ["test upload date"]))
+        (is (= (:call-args @mock-get-video-upload-date) ["test key" "test video id"])))))
     (testing "Unsuccessful mtime update"
       (with-mocks [mock-load-client-key {:target :fix-youtube-mtime.core/load-client-key
                                          :return "test key"}
@@ -181,7 +181,7 @@
                           (isDirectory [] false))
               result (update-mtime mock-file)]
           (is (= (:was-successful result) false))
-          (is (= (:msg result) "Was not able to retrieve mtime")))))))
+          (is (= (:msg result) "Was not able to retrieve mtime"))))))
 
 (deftest test-print-errors
   (testing "Print error if update-result is unsuccessful"
@@ -190,6 +190,4 @@
                                       (proxy [File] ["foo"]
                                               (getPath [] "C:\\foo"))
                                       "Update failed")]
-        (report-errors result)
-        (is (= (:call-count @mock-print) 1))
-        (is (= (:call-args @mock-print) '("C:\\foo: Update failed")))))))
+        (is (= (report-errors result) "C:\\foo: Update failed\n"))))))
