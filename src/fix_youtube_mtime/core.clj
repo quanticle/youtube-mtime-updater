@@ -103,5 +103,4 @@
 (defn -main
   "Entry point"
   [& args]
-  (with-open [input-rdr (io/reader *in*)]
-    (println (str/join (report-errors (flatten (map update-mtime (map #(File. %) (line-seq input-rdr)))))))))
+  (println (str/join (report-errors (flatten (map update-mtime (map #(File. %) args)))))))
