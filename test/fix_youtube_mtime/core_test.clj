@@ -14,7 +14,10 @@
        "fgHelV41-7I")))
   (testing "Extract yt-dlp formatted ID with underscore"
     (is (= (get-video-id-from-filename "The real reasons Alpine didn't want to sign Daniel Ricciardo for F1 2023 [fgHelV41_7I].webm")
-           "fgHelV41_7I"))))
+           "fgHelV41_7I")))
+  (testing "Extract yt-dlp formatted ID from a subtitle file"
+    (is (= (get-video-id-from-filename "Primitive Technology： Stone Axe (celt) [BN-34JfUrHY].en.vtt")
+           "BN-34JfUrHY"))))
 
 (deftest get-youtube-client-key
   (testing "Retrieve client key"
