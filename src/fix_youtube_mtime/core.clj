@@ -24,8 +24,8 @@
   "Gets the video ID from the filename.
    Videos downloaded by youtube-dl have a hyphen, followed by the 11-character video ID, followed by the extension.
    Videos downloaded by yt-dlp enclose the video ID in square brackets, followed by the extension."
-  (let [youtube-dl-match (re-find #"-([A-Za-z0-9_-]{11}).*" file-name)
-        yt-dlp-match (re-find #"\[([A-Za-z0-9_-]{11})\].*" file-name)]
+  (let [youtube-dl-match (re-find #"-([A-Za-z0-9_-]{11})\..*" file-name)
+        yt-dlp-match (re-find #"\[([A-Za-z0-9_-]{11})\]\..*" file-name)]
     (cond
       youtube-dl-match (youtube-dl-match 1)
       yt-dlp-match (yt-dlp-match 1)

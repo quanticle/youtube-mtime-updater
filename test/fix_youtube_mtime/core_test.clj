@@ -17,7 +17,10 @@
            "fgHelV41_7I")))
   (testing "Extract yt-dlp formatted ID from a subtitle file"
     (is (= (get-video-id-from-filename "Primitive Technology： Stone Axe (celt) [BN-34JfUrHY].en.vtt")
-           "BN-34JfUrHY"))))
+           "BN-34JfUrHY")))
+  (testing "Extract yt-dlp formatted ID from a title with hyphens"
+    (is (= "CGE_GtD0koU"
+           (get-video-id-from-filename "Do-It-Yourself ： Repainting Steel Entry Doors [CGE_GtD0koU].webm")))))
 
 (deftest get-youtube-client-key
   (testing "Retrieve client key"
